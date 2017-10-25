@@ -19,6 +19,8 @@ using namespace gl;
 
 #include <iostream>
 
+#include <math.h>	// log function _ ass1
+
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
  ,planet_object{}
@@ -31,21 +33,76 @@ void ApplicationSolar::render() const {
   // bind shader to upload uniforms
   glUseProgram(m_shaders.at("planet").handle);
 
-  glm::fmat4 model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime()), glm::fvec3{0.0f, 1.0f, 0.0f});
-  model_matrix = glm::translate(model_matrix, glm::fvec3{0.0f, 0.0f, -1.0f});
-  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"),
-                     1, GL_FALSE, glm::value_ptr(model_matrix));
+  // iterate over all planets to draw _ ass1
+  for (int i = 0; i < 10; i++) {
 
-  // extra matrix for normal transformation to keep them orthogonal to surface
-  glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
-  glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
-                     1, GL_FALSE, glm::value_ptr(normal_matrix));
+	  // to be dealt together with 'Earth' 
+	  if (planets[i].name == "Moon")
+		  continue;
 
-  // bind the VAO to draw
-  glBindVertexArray(planet_object.vertex_AO);
+	  // calculates and uploads the Model & Normal Matrix
+	  upload_planet_transforms(planets[i]);
+  }
+}
 
-  // draw bound vertex array using bound shader
-  glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+// calculates and uploads the Model & Normal Matrix _ ass1
+void ApplicationSolar::upload_planet_transforms(planet aPlanet) const {
+	
+	// scale the planet values to fit in the screen
+	double planetSize = log(aPlanet.size); planetSize = planetSize * planetSize / 200;
+	float planetDist = float(log(aPlanet.dist)); planetDist = planetDist * planetDist / 2 - 5;
+	float planetSpeed = float(log(aPlanet.speed) / 3);
+
+	// preventing the values of the sun to be infinity
+	if (aPlanet.name == "Sun") {
+		planetDist = 0.0f;
+		planetSpeed = 0.0f;
+	}
+
+	// get model matrix
+	glm::fmat4 model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime() * planetSpeed), glm::fvec3{0.0f, 1.0f, 0.0f});
+	model_matrix = glm::translate(model_matrix, glm::fvec3{ 0.0f, 0.0f, planetDist});
+	model_matrix = glm::scale(model_matrix, glm::fvec3{ planetSize, planetSize, planetSize });
+	glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"),
+	                   1, GL_FALSE, glm::value_ptr(model_matrix));
+
+	//extra matrix for normal transformation to keep them orthogonal to surface
+	glm::fmat4 normal_matrix = glm::inverseTranspose(glm::inverse(m_view_transform) * model_matrix);
+	glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
+		1, GL_FALSE, glm::value_ptr(normal_matrix));
+
+	// bind the VAO to draw
+	glBindVertexArray(planet_object.vertex_AO);
+
+	// draw bound vertex array using bound shader
+	glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+
+	// add 'Moon' in case of 'Earth'
+	if (aPlanet.name == "Earth") {
+
+		// scale the moon values
+		float moonSpeed = float(planets[4].speed *2);
+		double moonSize = log(planets[4].size) / 20;
+		float moonDist = float(planets[4].dist * 5);
+
+		// get model matrix
+		glm::fmat4 moon_matrix = glm::rotate(model_matrix, float(glfwGetTime() * -moonSpeed), glm::fvec3{ 0.0f, 1.0f, 0.0f });
+		moon_matrix = glm::translate(moon_matrix, glm::fvec3{ 0.0f, 0.0f, moonDist });
+		moon_matrix = glm::scale(moon_matrix, glm::fvec3{ moonSize, moonSize, moonSize });
+		glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"),
+			1, GL_FALSE, glm::value_ptr(moon_matrix));
+		
+		//extra matrix for normal transformation to keep them orthogonal to surface
+		glm::fmat4 moon_normal = glm::inverseTranspose(glm::inverse(m_view_transform) * moon_matrix);
+		glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("NormalMatrix"),
+			1, GL_FALSE, glm::value_ptr(moon_normal));
+
+		// bind the VAO to draw
+		glBindVertexArray(planet_object.vertex_AO);
+
+		// draw bound vertex array using bound shader
+		glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+	}
 }
 
 void ApplicationSolar::updateView() {
@@ -75,13 +132,31 @@ void ApplicationSolar::uploadUniforms() {
 
 // handle key input
 void ApplicationSolar::keyCallback(int key, int scancode, int action, int mods) {
-  if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+  
+	//wider
+	if (key == GLFW_KEY_W && action == GLFW_PRESS) {
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, -0.1f});
     updateView();
-  }
+  }	// smaller
   else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
     m_view_transform = glm::translate(m_view_transform, glm::fvec3{0.0f, 0.0f, 0.1f});
     updateView();
+  }	// left  
+  else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS) {
+	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{-1.0f, 0.0f, 0.0f });
+	  updateView();
+  }	// right
+  else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS) {
+	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 1.0f, 0.0f, 0.0f });
+	  updateView();
+  }	// down
+  else if (key == GLFW_KEY_DOWN && action == GLFW_PRESS) {
+	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, -1.0f, 0.0f });
+	  updateView();
+  }	// up
+  else if (key == GLFW_KEY_UP && action == GLFW_PRESS) {
+	  m_view_transform = glm::translate(m_view_transform, glm::fvec3{ 0.0f, 1.0f, 0.0f });
+	  updateView();
   }
 }
 

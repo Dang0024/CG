@@ -52,6 +52,8 @@ class ApplicationSolar : public Application {
   void render() const;
   // calculates and uploads the Model - and Normal Matrix _ ass1
   void upload_planet_transforms(planet aPlanet) const;
+  // draw stars _ ass2
+  void makeStars() const;
 
  protected:
   void initializeShaderPrograms();
@@ -60,6 +62,7 @@ class ApplicationSolar : public Application {
 
   // cpu representation of model
   model_object planet_object;
+  model_object star_object;
 };
 
 #endif

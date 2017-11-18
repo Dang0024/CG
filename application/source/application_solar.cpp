@@ -166,6 +166,10 @@ void ApplicationSolar::uploadUniforms() {
   // bind new shader
   glUseProgram(m_shaders.at("planet").handle);
   
+  // setting the light source _ ass3 (change with gluniform3f?)
+  glUniform3fv(m_shaders.at("planet").u_locs.at("light"), 1,
+	  glm::value_ptr(glm::fvec3{ 0.0f, 0.0f, 0.0f }));
+
   updateView();
   updateProjection();
 }
@@ -215,6 +219,7 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
+  m_shaders.at("planet").u_locs["light"] = -1;
 
   // store star shader program objects in container _ ass2
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/star.vert",

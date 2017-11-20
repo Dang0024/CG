@@ -1,27 +1,30 @@
 #version 150
 
 in vec3 pass_Normal;
-in vec3 pass_FragmentPos;	// _ ass3
+in vec3 pass_FragPos;	// _ ass3
 in vec3 pass_VertexInViewSpace;	// _ ass3
 
 out vec4 out_Color;
 
 // _ ass3
-uniform vec3 light;
+uniform vec3 lightSrc;
+uniform vec3 ambientColor;  // r, g, b color value
 
 void main() {
-
-  vec3 ambientColor = vec3(0.6, 0.0, 0.0);
   vec3 diffuseColor = ambientColor;
   vec3 specularColor = vec3(1.0, 1.0, 1.0); // white
-  float b = 24.0;
+  float shininess = 24.0;
 
-  vec3 lightAngle = normalize(light - pass_FragmentPos);
-  vec3 halfway = normalize(pass_VertexInViewSpace + lightAngle);
+  vec3 normal = normalize(pass_Normal);
+  vec3 light = normalize(lightSrc - pass_FragPos);
+  vec3 halfway = normalize(pass_VertexInViewSpace + light);
   
+  float diffuseAngle = max(0.0, dot(light, normal));
+  float specularAngle = pow(max(0.0, dot(normal, halfway)), shininess);
+
   vec3 ambient = ambientColor;
-  vec3 diffuse = diffuseColor * max(0, dot(lightAngle, pass_Normal));
-  vec3 specular = specularColor * pow(max(0, dot(pass_Normal, halfway)), b);
+  vec3 diffuse = diffuseColor * diffuseAngle;
+  vec3 specular = specularColor * specularAngle;
 
   out_Color = vec4(ambient + diffuse + specular, 1.0);
 }

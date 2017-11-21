@@ -13,7 +13,7 @@ struct planet {
 	double size;	// diameter (km)
 	double speed;	// rotation speed (km/s)
 	double dist;	// distance from the axis to its origin (10^6km)
-	float color[3];	// r, g, b values
+	float color[3];	// r, g, b values _ ass3
 };
 
 // gpu representation of model
@@ -25,7 +25,7 @@ class ApplicationSolar : public Application {
   ~ApplicationSolar();
 
   // planets in a solar system _ ass1
-  // name, diameter(km), speed(km/s), distance(10^6km)
+  // name, diameter(km), speed(km/s), distance(10^6km), color(r, g, b)
 
   planet planets[10] = { 
 	  {"Sun", 1392000, 0.0, 0.0, { 0.96f, 0.56f, 0.22f }},

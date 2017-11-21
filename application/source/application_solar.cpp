@@ -21,7 +21,7 @@ using namespace gl;
 
 #include <math.h>	// log function _ ass1
 
-const int NUM_STARS = 10000;	// number of stars
+const int NUM_STARS = 1000;	// number of stars
 
 ApplicationSolar::ApplicationSolar(std::string const& resource_path)
  :Application{resource_path}
@@ -43,8 +43,8 @@ void ApplicationSolar::render() const {
 	  if (planets[i].name == "Moon")
 		  continue;
 	  
-	  // load r, g, b color values for the planet
-	  glUniform3f(m_shaders.at("planet").u_locs.at("ambientColor"), planets[i].color[0], planets[i].color[1], planets[i].color[2]);
+	  // load r, g, b color values for the planet _ ass3
+	  glUniform3f(m_shaders.at("planet").u_locs.at("diffuseColor"), planets[i].color[0], planets[i].color[1], planets[i].color[2]);
 
 	  // calculates and uploads the Model & Normal Matrix
 	  upload_planet_transforms(planets[i]);
@@ -84,8 +84,8 @@ void ApplicationSolar::upload_planet_transforms(planet aPlanet) const {
 	// add 'Moon' in case of 'Earth'
 	if (aPlanet.name == "Earth") {
 
-		// load the r, g, b color value for the moon
-		glUniform3f(m_shaders.at("planet").u_locs.at("ambientColor"), planets[4].color[0], planets[4].color[1], planets[4].color[2]);
+		// load the r, g, b color value for the moon _ ass3
+		glUniform3f(m_shaders.at("planet").u_locs.at("diffuseColor"), planets[4].color[0], planets[4].color[1], planets[4].color[2]);
 
 		// scale the moon values
 		float moonSpeed = float(planets[4].speed *2);
@@ -162,7 +162,7 @@ void ApplicationSolar::uploadUniforms() {
   // bind new shader
   glUseProgram(m_shaders.at("planet").handle);
   
-  // setting the light source _ ass3 (change with gluniform3f?)
+  // setting the light source _ ass3
   glUniform3f(m_shaders.at("planet").u_locs.at("lightSrc"), 0.0f, 0.0f, 0.0f);
 
   updateView();
@@ -213,8 +213,8 @@ void ApplicationSolar::initializeShaderPrograms() {
   m_shaders.at("planet").u_locs["ModelMatrix"] = -1;
   m_shaders.at("planet").u_locs["ViewMatrix"] = -1;
   m_shaders.at("planet").u_locs["ProjectionMatrix"] = -1;
-  m_shaders.at("planet").u_locs["lightSrc"] = -1;
-  m_shaders.at("planet").u_locs["ambientColor"] = -1;
+  m_shaders.at("planet").u_locs["lightSrc"] = -1;	// for blinn-phong reflection _ ass3
+  m_shaders.at("planet").u_locs["diffuseColor"] = -1;	// for blinn-phong reflection _ ass3
 
   // store star shader program objects in container _ ass2
   m_shaders.emplace("star", shader_program{m_resource_path + "shaders/star.vert",

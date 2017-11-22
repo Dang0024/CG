@@ -6,9 +6,14 @@ in vec3 pass_eyePos;	// eye (camera) position _ ass3
 
 out vec4 out_Color;
 
-// uniform values for Blinn-Phong reflection _ ass3
+// uniform values _ ass3
 uniform vec3 lightSrc;
 uniform vec3 diffuseColor;  // r, g, b color value
+uniform int modeswitch; // blinn-phong if 1, cel-shading if 2
+
+// cel-shading level
+const int shadeLevel = 3;
+float outline = 1.0;
 
 void main() {
 
@@ -26,6 +31,20 @@ void main() {
   // Cosine values of each angle
   float diffuseAngle = max(0.0, dot(light, normal));
   float specularAngle = pow(max(0.0, dot(normal, halfway)), shininess);
+  
+  // cel-shading
+  if(modeswitch == 2){
+    // diffuseAngle is discretized to determine the intensity of color
+    diffuseAngle = floor(diffuseAngle * shadeLevel) / shadeLevel;
+    
+    // also discretize specular light
+    if(specularAngle < 0.5)
+      specularAngle = 0.0;
+
+    // outline
+    if(dot(normal, eye) < 0.25)
+      outline = 0.0;
+  }
 
   // final terms
   vec3 ambient = ambientColor;
@@ -33,5 +52,6 @@ void main() {
   vec3 specular = specularColor * specularAngle;
 
   // final result
-  out_Color = vec4(ambient + diffuse + specular, 1.0);
+  vec3 finalColor = outline * (ambient + diffuse + specular);
+  out_Color = vec4(finalColor, 1.0);
 }

@@ -32,7 +32,7 @@ class ApplicationSolar : public Application {
 	  {"Mercury", 4879, 47.4, 57.91, { 0.35f, 0.33f, 0.3f }},
 	  {"Venus", 12100, 35.0, 108.2, { 0.94f, 0.9f, 0.55f }},
 	  {"Earth", 12740, 29.8, 149.6, { 0.0f, 0.32f, 0.65f }},
-	  {"Moon", 3474, 0.2, 0.384,{ 1.0f, 0.99f, 0.84f } },
+	  {"Moon", 3474, 0.2, 0.384,{ 1.0f, 0.99f, 0.84f }},
 	  {"Mars", 6779, 24.1, 227.9,{ 0.5f, 0.0f, 0.0f }},
 	  {"Jupiter", 139800, 13.1, 778.6,{ 0.9f, 0.58f, 0.0f }},
 	  {"Saturn", 116500, 9.7, 1433.0,{ 0.9f, 0.75f, 0.54f }},
@@ -59,11 +59,13 @@ class ApplicationSolar : public Application {
  protected:
   void initializeShaderPrograms();
   void initializeGeometry();
+  void initializeTextures();
   void updateView();
 
   // cpu representation of model
   model_object planet_object;
   model_object star_object;
+  texture_object tex_object[10];
 };
 
 #endif

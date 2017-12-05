@@ -3,19 +3,25 @@
 in vec3 pass_Normal;
 in vec3 pass_FragPos;	// fragment position _ ass3
 in vec3 pass_eyePos;	// eye (camera) position _ ass3
+in vec2 pass_TexCoord;  // texture coordinates _ ass4
 
 out vec4 out_Color;
 
 // uniform values _ ass3
 uniform vec3 lightSrc;
-uniform vec3 diffuseColor;  // r, g, b color value
 uniform int modeswitch; // blinn-phong if 1, cel-shading if 2
+
+uniform sampler2D ColorTex; // sampler variable _ ass4
 
 // cel-shading level
 const int shadeLevel = 3;
 float outline = 1.0;
 
 void main() {
+
+  // use the sampled texture as a diffuse color _ ass4
+  vec4 color = texture(ColorTex, pass_TexCoord);
+  vec3 diffuseColor = color.rgb;
 
   // values for shading
   vec3 ambientColor = diffuseColor;

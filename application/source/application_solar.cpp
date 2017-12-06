@@ -21,6 +21,7 @@ using namespace gl;
 #include <iostream>
 
 #include <math.h>	// log function _ ass1
+#include <string>	// texture file name _ ass4
 
 const int NUM_STARS = 1000;	// number of stars
 
@@ -63,6 +64,9 @@ void ApplicationSolar::render() const {
 
 	// draw stars _ ass2
 	makeStars();
+
+	// create sky sphere _ ass4
+	createSky();
 }
 
 // calculates and uploads the Model & Normal Matrix _ ass1
@@ -353,11 +357,20 @@ void ApplicationSolar::initializeGeometry() {
 // Texture Specification _ ass4
 void ApplicationSolar::initializeTextures() {
 	
-	// for each planet
-	for (int i = 0; i < 10; i++) {
+	std::string filename;
+
+	// for each planet + sky
+	for (int i = 0; i < 11; i++) {
+
+
+		// load image name
+		if (i == 10)
+			filename = "Sky";
+		else
+			filename = planets[i].name;
 
 		// load image file
-		pixel_data texData = texture_loader::file(m_resource_path + "textures/" + planets[i].name + ".png");
+		pixel_data texData = texture_loader::file(m_resource_path + "textures/" + filename + ".png");
 
 		// activate proper texture unit
 		tex_object[i].target = GL_TEXTURE0 + i;
@@ -376,6 +389,36 @@ void ApplicationSolar::initializeTextures() {
 	}
 }
 
+// sky texture mapping _ ass4
+void ApplicationSolar::createSky() const {
+
+	// bind shader to upload uniforms
+	glUseProgram(m_shaders.at("planet").handle);
+	
+	// Texture Usage _ ass4
+	// activate the proper Texture Unit
+	glActiveTexture(tex_object[10].target);
+	// bind the proper texture object
+	glBindTexture(GL_TEXTURE_2D, tex_object[10].handle);
+	// location of the sampler uniform for shader
+	int color_sampler_location = glGetUniformLocation(m_shaders.at("planet").handle, "ColorTex");
+	// upload index of unit to sampler
+	glUniform1i(color_sampler_location, 10);
+
+	// get model matrix
+	glm::fmat4 model_matrix = glm::rotate(glm::fmat4{}, float(glfwGetTime() * sky.speed), glm::fvec3{ 0.0f, 1.0f, 0.0f });
+	model_matrix = glm::translate(model_matrix, glm::fvec3{ 0.0f, 0.0f, sky.dist });
+	model_matrix = glm::scale(model_matrix, glm::fvec3{ sky.size, sky.size, sky.size });
+	glUniformMatrix4fv(m_shaders.at("planet").u_locs.at("ModelMatrix"),
+		1, GL_FALSE, glm::value_ptr(model_matrix));
+
+	// bind the VAO to draw
+	glBindVertexArray(planet_object.vertex_AO);
+
+	// draw bound vertex array using bound shader
+	glDrawElements(planet_object.draw_mode, planet_object.num_elements, model::INDEX.type, NULL);
+}
+
 ApplicationSolar::~ApplicationSolar() {
 	glDeleteBuffers(1, &planet_object.vertex_BO);
 	glDeleteBuffers(1, &planet_object.element_BO);
@@ -385,7 +428,7 @@ ApplicationSolar::~ApplicationSolar() {
 	glDeleteBuffers(1, &star_object.element_BO);
 	glDeleteVertexArrays(1, &star_object.vertex_AO);
 
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 11; i++)
 		glDeleteTextures(1, &tex_object[i].handle);	// _ ass4
 }
 

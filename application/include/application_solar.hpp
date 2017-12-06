@@ -37,9 +37,12 @@ class ApplicationSolar : public Application {
 	  {"Jupiter", 139800, 13.1, 778.6,{ 0.9f, 0.58f, 0.0f }},
 	  {"Saturn", 116500, 9.7, 1433.0,{ 0.9f, 0.75f, 0.54f }},
 	  {"Uranus", 50720, 6.8, 2877.0, { 0.69f, 0.893f, 0.93f }},
-	  {"Neptune", 49250, 5.4, 4503.0, {0.69f, 0.81f, 0.93f }}
+	  {"Neptune", 49250, 5.4, 4503.0, {0.69f, 0.81f, 0.93f }},
   };
  
+  // sky sphere _ ass4
+  planet sky = { "Sky", 40, 0, 0,{ 0.0f, 0.0f, 0.0f } };
+
   // update uniform locations and values
   void uploadUniforms();
   // update projection matrix
@@ -55,6 +58,8 @@ class ApplicationSolar : public Application {
   void upload_planet_transforms(planet aPlanet) const;
   // draw stars _ ass2
   void makeStars() const;
+  // sky texture mapping _ ass4
+  void createSky() const;
 
  protected:
   void initializeShaderPrograms();
@@ -65,7 +70,7 @@ class ApplicationSolar : public Application {
   // cpu representation of model
   model_object planet_object;
   model_object star_object;
-  texture_object tex_object[10];
+  texture_object tex_object[11];
 };
 
 #endif

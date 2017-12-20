@@ -65,12 +65,18 @@ class ApplicationSolar : public Application {
   void initializeShaderPrograms();
   void initializeGeometry();
   void initializeTextures();
+  void initializeFrameBuffer();	// _ ass5
+  void initializeScreenQuad();	// _ ass5
   void updateView();
 
   // cpu representation of model
   model_object planet_object;
   model_object star_object;
-  texture_object tex_object[11];
+  texture_object tex_object[12];
+  model_object screenquad_object;	// _ ass5
+
+  GLuint fbo_handle = 0;	// frame buffer object _ ass5
+  GLuint rb_handle = 0;	// render buffor object _ ass5
 };
 
 #endif
